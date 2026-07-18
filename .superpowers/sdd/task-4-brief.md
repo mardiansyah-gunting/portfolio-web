@@ -1,3 +1,15 @@
+### Task 4: Base Layout
+
+**Files:**
+- Create: `src/layouts/BaseLayout.astro`
+
+**Interfaces:**
+- Consumes: `src/styles/global.css`
+- Produces: HTML shell with `<head>`, global styles, inline i18n init + theme init
+
+- [ ] **Step 1: Create BaseLayout.astro**
+
+```astro
 ---
 import '../styles/global.css';
 
@@ -18,30 +30,22 @@ const { title = "Mardiansyah Gunting" } = Astro.props;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script is:inline>
-    (function() {
-      var savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-    })();
-  </script>
   <title>{title}</title>
 </head>
 <body>
   <slot />
   <script>
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
     const translations = {};
 
     async function loadLanguage(lang) {
       if (translations[lang]) return;
-      try {
-        const res = await fetch('i18n/' + lang + '.json');
-        if (!res.ok) throw new Error('Failed to load ' + lang);
-        translations[lang] = await res.json();
-      } catch (e) {
-        console.warn('i18n: could not load', lang, e);
-      }
+      const res = await fetch(`i18n/${lang}.json`);
+      translations[lang] = await res.json();
     }
 
     function getCurrentLang() {
@@ -52,7 +56,6 @@ const { title = "Mardiansyah Gunting" } = Astro.props;
       localStorage.setItem('lang', lang);
       await loadLanguage(lang);
       const t = translations[lang];
-      if (!t) return;
       document.documentElement.lang = lang;
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
@@ -72,3 +75,10 @@ const { title = "Mardiansyah Gunting" } = Astro.props;
   </script>
 </body>
 </html>
+```
+
+- [ ] **Step 2: Verify build still passes**
+
+Run: `npm run build`
+Expected: Build succeeds.
+
